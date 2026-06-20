@@ -157,8 +157,8 @@ def arctand(valor):
 # CONTROLADOR
 
 # Variaveis
-Mp_ftmf = 0.2
-Ts_2_ftmf = 1000
+Mp_ftmf = 0.1
+Ts_2_ftmf = 600
 
 # Calculando zeta e wn
 zeta_ftmf = -np.log(Mp_ftmf)/np.sqrt(np.pi**2 + np.log(Mp_ftmf)**2)
@@ -343,3 +343,14 @@ plt.legend(loc='lower right')
 plt.grid()
 plt.title('Resposta ao Degrau')
 plt.savefig(os.path.join(pasta_destino, 'resposta_degrau_Euler_R.png'), dpi=300)
+
+# Comparando as respostas ao degrau dos sistemas com controlador PI discretizado por metodo Trapeziodal e em tempo contínuo
+plt.figure()
+plt.plot(t_t, theta_t, label='Resposta COM controlador PI em tempo contínuo')
+plt.plot(t_t_trap, theta_t_trap, '--', label='Resposta COM controlador PI discretizado por metodo Trapeziodal')
+plt.xlabel('t, s')
+plt.ylabel(r'Temperatura, °C')
+plt.legend(loc='lower right')
+plt.grid()
+plt.title('Resposta ao Degrau')
+plt.savefig(os.path.join(pasta_destino, 'resposta_degrau_comparacao_discreto_continuo.png'), dpi=300)
