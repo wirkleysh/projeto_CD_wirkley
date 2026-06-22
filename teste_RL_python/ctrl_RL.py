@@ -36,10 +36,17 @@ t_orig = np.array(t_orig)
 temperatura_orig = np.array(temperatura_orig)
 
 # Determina a temperatura inicial
-T_initial = temperatura_orig[0]
+temperatura_inicial = temperatura_orig[0]
+
+# Determinar tempo morto
+for i in range(len(temperatura_orig)):
+  if ((temperatura_orig[i] - 1) > temperatura_inicial):
+    tempo_morto = i - 1
+    break
+print(f'tempo morto = {tempo_morto}')
 
 # Desloca os dados de temperatura para que comecem em zero para o cálculo dos parâmetros
-temperatura_orig_shifted = temperatura_orig - T_initial
+temperatura_orig_shifted = temperatura_orig - temperatura_inicial
 temperatura_orig_shifted = temperatura_orig_shifted / k_in
 
 # Calculando o ganho de regime permanente (k)
@@ -50,7 +57,7 @@ print(f"k = {k:.2f}")
 target_value_for_tau = 0.632 * k
 
 idx_for_tau = np.where(temperatura_orig_shifted >= target_value_for_tau)[0]
-tau = t_orig[idx_for_tau[0]]
+tau = t_orig[idx_for_tau[0]] - tempo_morto
 print(f"tau = {tau:.2f} s\n")
 
 a = 1/tau
@@ -60,18 +67,19 @@ t_sim = np.linspace(t_orig.min(), t_orig.max(),len(t_orig))
 
 # FUNÇÃO TRANSFERÊNCIA G(s) - Modelo de Primeira Ordem
 
-numG = [k*a]
-denG = [1, a]
+numGSTM = [k*a]
+denGSTM = [1, a]
 
-# Criando a função transferencia G
-G = ct.TransferFunction(numG, denG)
+G = ct.tf(numGSTM, denGSTM)
 
-print(f"G(s):\n {G}\n")
+numTM, denTM = ct.pade(tempo_morto, 2)
+GTM = ct.series(G, ct.tf(numTM, denTM))
 
+print(f"G(s):\n {GTM}\n")
 
-t_g, temperatura_g_response1 = ct.step_response(G, T=t_sim)
+t_g, temperatura_g_response1 = ct.step_response(GTM, T=t_sim)
 temperatura_g_response = temperatura_g_response1 * k_in
-temperatura_g_adjusted = temperatura_g_response + T_initial
+temperatura_g_adjusted = temperatura_g_response + temperatura_inicial
 
 plt.figure()
 plt.plot(t_orig,temperatura_orig, label='Resposta levantada experimentalmente')
@@ -83,6 +91,7 @@ plt.grid()
 plt.xlim(t_orig.min(), t_orig.max())
 plt.title('Resposta ao Degrau')
 plt.savefig(os.path.join(pasta_destino, 'resposta_degrau.png'), dpi=300)
+plt.show()
 
 # Plotando apenas a resposta do modelo matemático a um degrau unitário
 plt.figure()
@@ -101,7 +110,13 @@ espon_c = np.exp(- 1 / tau)
 
 numZ =  [0, k * (1 - espon_c), k * (- 1 + espon_c)]
 denZ = [1, - 1 - espon_c, espon_c]
-FTD = ct.TransferFunction(numZ, denZ, dt=1)
+FTDSTM = ct.tf(numZ, denZ, dt=1)
+numTMZ = [1]
+denTMZ = [1 if i == 0 else 0 for i in range(tempo_morto + 1)]
+
+FTD = ct.series(FTDSTM, ct.tf(numTMZ, denTMZ, dt=1))
+
+
 print(f"FTD(z):\n {FTD}\n")
 
 t_d, y_d = ct.step_response(FTD, T=np.arange(0, 4020, 1))
@@ -233,7 +248,7 @@ Ap0 = np.sqrt((w_i - w_p0)**2 + (sigma_i - sigma_p0)**2)
 
 Api = np.sqrt(w_i**2 + sigma_i**2)
 
-kp = (Ap0*Api)/(numG[0]*Az0) # Ganho propocional
+kp = (Ap0*Api)/(numGSTM[0]*Az0) # Ganho propocional
 ki = np.abs(z0)*kp # Ganho integral
 
 print(f"kp = {kp:.2f}")
