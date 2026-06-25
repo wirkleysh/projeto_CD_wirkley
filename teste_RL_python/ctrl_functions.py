@@ -136,4 +136,4 @@ def metodos_disc(kp, ki, t_a, G_D, metodo_projeto, pasta_destino):
     plt.ylabel(r'Temperatura, °C')
     plt.legend(loc='best')
     plt.tight_layout()
-    plt.savefig(os.path.join(pasta_destino, f'Comparação do metodos de discretização{metodo_projeto}.png'), dpi=500)
+    plt.savefig(os.path.join(pasta_destino, f'Comparação do metodos de discretização{metodo_projeto}.png'), dpi=300)
