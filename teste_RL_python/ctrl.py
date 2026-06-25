@@ -103,7 +103,7 @@ plt.savefig(os.path.join(pasta_planta, f'{titulo_3}.png'), dpi=300)
 # CONTROLADOR
 
 # Variaveis
-Mp_ftmf = 0.01
+Mp_ftmf = 0.05
 Ts_2_ftmf = 600
 
 # Calculando zeta e wn
@@ -326,8 +326,8 @@ plt.savefig(os.path.join(pasta_DB, f'{titulo_7}.png'), dpi=300)
 
 #---------------------------------------- ZN -------------------------------------------------#
 
-kp_zn = 28.686
-ti_zn = 76.687
+kp_zn = (0.9*tau)/(k*t_morto)
+ti_zn = 3.33*t_morto
 ki_zn = kp_zn/ti_zn
 
 print(f"kp_zn = {kp_zn}")
