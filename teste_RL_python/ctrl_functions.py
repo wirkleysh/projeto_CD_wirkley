@@ -137,5 +137,3 @@ def metodos_disc(kp, ki, t_a, G_D, metodo_projeto, pasta_destino):
     plt.legend(loc='best')
     plt.tight_layout()
     plt.savefig(os.path.join(pasta_destino, f'Comparação do metodos de discretização{metodo_projeto}.png'), dpi=500)
-for i in range(4):
-    print(i)
