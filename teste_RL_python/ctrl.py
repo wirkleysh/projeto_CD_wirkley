@@ -232,7 +232,7 @@ print(f'Zeros:\ns = {np.roots(numC)[0]:.4f}\n')
 titulo_5 = 'root_locus_CG(s)'
 
 plt.figure()
-ct.root_locus(G)
+ct.root_locus(C*G)
 plt.plot(sigma_i, w_i, 'ro')
 plt.title('Root Locus CG(s)')
 plt.xlabel('Real Axis')
@@ -283,6 +283,7 @@ print(f"ki_chr = {ki_chr}")
 lc.metodos_disc(kp_chr, ki_chr, t_a, G_D, 'CHR', pasta_CHR)
 
 #---------------------------------------- IMC -------------------------------------------------#
+
 lamb = 2*t_morto
 kp_imc = (2*tau - t_morto)/(k*2*lamb)
 ti_imc = tau + (lamb/2)
@@ -293,9 +294,8 @@ print(f"ki_imc = {ki_imc}")
 
 lc.metodos_disc(kp_imc, ki_imc, t_a, G_D, 'IMC', pasta_IMC)
 
-
-
 #---------------------------------------- DeadBeat -------------------------------------------------#
+
 n = len(ct.poles(G_D)) - len(ct.zeros(G_D))
 num_F = [1]
 den_F = [1 if i == 0 else (0 if 0 < i < n else - 1) for i in range(n + 1)]
@@ -323,7 +323,6 @@ plt.grid()
 plt.xlim(t.min(), t.max())
 plt.title(titulo_7)
 plt.savefig(os.path.join(pasta_DB, f'{titulo_7}.png'), dpi=300)
-
 
 #---------------------------------------- ZN -------------------------------------------------#
 
