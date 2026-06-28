@@ -87,18 +87,26 @@ def arctand(valor):
   return math.degrees(math.atan(valor))
 
 
-def metodos_disc(kp, ki, t_a, G_D, metodo_projeto, pasta_destino):
-    numCT = [2*kp + t_a*ki, t_a*ki - 2*kp]
-    denCT = [2, -2]
+def metodos_disc(kp, ki, t_a, G, G_D, metodo_projeto, pasta_destino):
+    num = [kp, ki]
+    den = [1, 0]
+    C = ct.tf(num, den)
+
+    numCT = [kp + (t_a*ki)/2, (t_a*ki/2) - kp]
+    denCT = [1, -1]
     CT = ct.tf(numCT, denCT, dt=t_a)
 
-    numCEP = [kp + t_a*ki, - 1]
+    numCEP = [kp, + t_a*ki - kp]
     denCEP = [1, -1]
     CEP = ct.tf(numCEP, denCEP, dt=t_a)
 
-    numCER = [kp, t_a*ki - kp]
+    numCER = [kp + t_a*ki, - kp]
     denCER = [1, -1]
     CER = ct.tf(numCER, denCER, dt=t_a)
+
+    # FTMF Continua com controlador
+    T = ct.feedback(C * G)
+    print(f"FTMF com controlador discretizado por metodo Trapeziodal:\n {T}\n")
 
     # FTMF com controlador discretizado por metodo Trapeziodal
     T_Trapezoidal = ct.feedback(CT * G_D)
@@ -112,28 +120,53 @@ def metodos_disc(kp, ki, t_a, G_D, metodo_projeto, pasta_destino):
     T_Euler_R = ct.feedback(CER * G_D)
     print(f"FTMF com controlador discretizado por metodo Euler regressivo:\n {T_Euler_R}\n")
                                                                             
+    t_t, temperatura_t = ct.step_response(T, T=np.arange(0, 4020, 1))
     t_t_trap, temperatura_t_trap = ct.step_response(T_Trapezoidal, T=np.arange(0, 4020, 1))
     t_t_euler_p, temperatura_t_euler_p = ct.step_response(T_Euler_P, T=np.arange(0, 4020, 1))
     t_t_euler_r, temperatura_t_euler_r = ct.step_response(T_Euler_R, T=np.arange(0, 4020, 1))
 
-    plt.figure()
+    # --- CONFIGURAÇÃO GLOBAL DE LAYOUT FINO ---
+    plt.rcParams['axes.linewidth'] = 0.5    # Deixa as bordas dos gráficos bem finas
+    plt.rcParams['grid.linewidth'] = 0.3    # Deixa as linhas do grid super sutis
+    plt.rcParams['lines.linewidth'] = 0.7   # Espessura padrão para qualquer linha plotada
+
+    plt.figure(figsize=(10, 8))
+
+    # 1. Resposta Contínua
     plt.subplot(2, 2, 1)
-    plt.plot(t_t_trap, temperatura_t_trap, label='Trapeziodal')
-    plt.grid()
-    plt.xlabel('t, s')
-    plt.ylabel(r'Temperatura, °C')
-    plt.legend(loc='best')
+    plt.plot(t_t, temperatura_t, label='Resposta Continua', color='blue')
+    plt.grid(True, linestyle='--', alpha=0.5) # Grid tracejado e sutil
+    plt.xlabel('t, s', fontsize=9)
+    plt.ylabel('Temperatura, °C', fontsize=9)
+    plt.tick_params(axis='both', labelsize=8, width=0.5) # Riscos dos eixos mais finos
+    plt.legend(loc='best', fontsize=8, frameon=True, edgecolor='none') # Legenda limpa
+
+    # 2. Trapezoidal
     plt.subplot(2, 2, 2)
-    plt.plot(t_t_euler_p, temperatura_t_euler_p, label='Euler progressivo')
-    plt.grid()
-    plt.xlabel('t, s')
-    plt.ylabel(r'Temperatura, °C')
-    plt.legend(loc='best')
+    plt.plot(t_t_trap, temperatura_t_trap, label='Trapezoidal', color='orange')
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.xlabel('t, s', fontsize=9)
+    plt.ylabel('Temperatura, °C', fontsize=9)
+    plt.tick_params(axis='both', labelsize=8, width=0.5)
+    plt.legend(loc='best', fontsize=8, frameon=True, edgecolor='none')
+
+    # 3. Euler Progressivo
     plt.subplot(2, 2, 3)
-    plt.plot(t_t_euler_r, temperatura_t_euler_r, label='Euler regressivo')
-    plt.grid()
-    plt.xlabel('t, s')
-    plt.ylabel(r'Temperatura, °C')
-    plt.legend(loc='best')
+    plt.plot(t_t_euler_p, temperatura_t_euler_p, label='Euler Progressivo', color='green')
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.xlabel('t, s', fontsize=9)
+    plt.ylabel('Temperatura, °C', fontsize=9)
+    plt.tick_params(axis='both', labelsize=8, width=0.5)
+    plt.legend(loc='best', fontsize=8, frameon=True, edgecolor='none')
+
+    # 4. Euler Regressivo
+    plt.subplot(2, 2, 4)
+    plt.plot(t_t_euler_r, temperatura_t_euler_r, label='Euler Regressivo', color='red')
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.xlabel('t, s', fontsize=9)
+    plt.ylabel('Temperatura, °C', fontsize=9)
+    plt.tick_params(axis='both', labelsize=8, width=0.5)
+    plt.legend(loc='best', fontsize=8, frameon=True, edgecolor='none')
+
     plt.tight_layout()
-    plt.savefig(os.path.join(pasta_destino, f'Comparação do metodos de discretização{metodo_projeto}.png'), dpi=300)
+    plt.savefig(os.path.join(pasta_destino, f'Comparação do metodos de discretização {metodo_projeto}.png'), dpi=300)

@@ -269,7 +269,7 @@ plt.title(titulo_6)
 plt.savefig(os.path.join(pasta_RL, f'{titulo_6}.png'), dpi=300)
 
 
-lc.metodos_disc(kp, ki, t_a, G_D, 'Root Locus', pasta_RL)
+lc.metodos_disc(kp, ki, t_a, G, G_D, 'Root Locus', pasta_RL)
 
 #---------------------------------------- CHR -------------------------------------------------#
 
@@ -280,11 +280,11 @@ ki_chr = kp_chr/ti_chr
 print(f"kp_chr = {kp_chr}")
 print(f"ki_chr = {ki_chr}")
 
-lc.metodos_disc(kp_chr, ki_chr, t_a, G_D, 'CHR', pasta_CHR)
+lc.metodos_disc(kp_chr, ki_chr, t_a, G, G_D, 'CHR', pasta_CHR)
 
 #---------------------------------------- IMC -------------------------------------------------#
 
-lamb = 2*t_morto
+lamb = 3*t_morto
 kp_imc = (2*tau - t_morto)/(k*2*lamb)
 ti_imc = tau + (lamb/2)
 ki_imc = kp_imc/ti_imc
@@ -292,7 +292,7 @@ ki_imc = kp_imc/ti_imc
 print(f"kp_imc = {kp_imc}")
 print(f"ki_imc = {ki_imc}")
 
-lc.metodos_disc(kp_imc, ki_imc, t_a, G_D, 'IMC', pasta_IMC)
+lc.metodos_disc(kp_imc, ki_imc, t_a, G, G_D, 'IMC', pasta_IMC)
 
 #---------------------------------------- DeadBeat -------------------------------------------------#
 
@@ -333,4 +333,4 @@ ki_zn = kp_zn/ti_zn
 print(f"kp_zn = {kp_zn}")
 print(f"ki_zn = {ki_zn}")
 
-lc.metodos_disc(kp_zn, ki_zn, t_a, G_D, 'ZN', pasta_ZN)
+lc.metodos_disc(kp_zn, ki_zn, t_a, G, G_D, 'ZN', pasta_ZN)
